@@ -1,4 +1,2 @@
 #!/bin/sh
-
-yarn install --ignore-scripts
-yarn nightwatch -- --env ci
+NODE_PATH=/test/ nightwatch --reporter=/test/nightwatch.reporter.js --env ci

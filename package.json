@@ -1,0 +1,13 @@
+{
+  "name": "drone-nightwatch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:songsterr/drone-nightwatch.git",
+  "author": "Aleksei Krasnoperov <aleksei@krasnoperov.me>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@slack/client": "^3.8.1",
+    "object-assign": "^4.1.1"
+  }
+}
