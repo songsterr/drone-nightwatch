@@ -1,4 +1,4 @@
-# Drone 0.5 plugin for Nightwatch
+# Drone 0.5 plugin for Nightwatch tests
 
 ## Usage:
 
