@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:7.7.2
 
-RUN npm install -g nightwatch
+RUN npm install -g yarn
 
 ADD script.sh /bin/
 RUN chmod +x /bin/script.sh

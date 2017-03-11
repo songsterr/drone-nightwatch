@@ -1,3 +1,4 @@
 #!/bin/sh
 
-nightwatch -- --env ci
+yarn install --ignore-scripts
+yarn nightwatch -- --env ci
