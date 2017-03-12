@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@slack/client": "^3.8.1",
+    "isomorphic-fetch": "^2.2.1",
     "object-assign": "^4.1.1"
   }
 }
