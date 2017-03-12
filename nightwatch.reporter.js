@@ -1,117 +1,66 @@
-// Original: https://raw.githubusercontent.com/ngs/nightwatch-slack-reporter/master/lib/reporter.js
-// this file is here because version in npm is obsolete
+// Thanks to https://raw.githubusercontent.com/ngs/nightwatch-slack-reporter/master/lib/reporter.js
 
-var IncomingWebhook = require('@slack/client').IncomingWebhook
-  , assign = require('object-assign')
-  ;
+const request = require('request')
 
 function write(results, options, done) {
-  var webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL || options.slack_webhook_url || (options.globals || {}).slack_webhook_url
-    , sendOnlyOnFailure = options.slack_send_only_on_failure || (options.globals || {}).slack_slack_send_only_on_failure || false
-    , sendOnlyFailedTests = options.slack_send_only_failed_tests || (options.globals || {}).slack_send_only_failed_tests || false
-    , modules = results.modules || {}
-    , attachments = []
-    , message, wh, completed, skipped, color
-    ;
+  const webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL
+
   if (!webhookURL) {
-    console.warn('[slack-reporter] Slack Webhook URL is not configured.');
-    return done();
-  }
-  wh = new IncomingWebhook(webhookURL);
-
-  if(sendOnlyOnFailure && results.failed < 1){
+    console.warn('[slack-reporter] environment SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL is not configured');
     return done();
   }
 
-  message = options.slack_message || (options.globals || {}).slack_message || {};
-  if (typeof message === 'function') {
-    message = message.apply(this, [results, options]);
-  }
-  if (typeof message === 'string') {
-    message = { text: message };
+  const message = {
+    attachments: []
   }
 
-  Object.keys(modules).map(function(moduleName) {
-    var module = modules[moduleName] || {}
-      , completed = module.completed || {}
-      , fields = []
-      ;
-    Object.keys(completed).forEach(function(testName) {
-      var test = completed[testName]
-        , skipped = test.skipped > 0
-        , failed = test.failed + test.errors > 0
-        , assertions = test.assertions || []
-        , color = failed ? 'danger' : skipped ? 'warning' : 'good'
-        , text = assertions.length + ' assertions, ' + test.time + ' seconds elapsed'
-        , fields = []
-        ;
+  const branch = `<${process.env.DRONE_COMMIT_LINK}|${process.env.DRONE_REPO_NAME}:${process.env.DRONE_BRANCH}>`
+  const passedMessage = (results.passed) ?  `, passed ${results.passed}` : ''
+  const skippedMessage = (results.skipped) ?  `, skipped ${results.skipped}`: ''
+  const failedMessage = (results.failed) ?  `, failed ${results.failed}`: ''
+  const errorsMessage = (results.errors) ?  `, not working ${results.errors}` : ''
 
-      if(sendOnlyFailedTests && failed < 1){
-        return;
+  const text = `Test of ${branch} completed${passedMessage}${skippedMessage}${failedMessage}${errorsMessage}`
+  const color = ((results.failed + results.errors) > 0) ? 'danger' : ((results.skipped > 0) ? 'warning' : 'good')
+
+  message.attachments.push({
+    color: color,
+    text: text,
+    mrkdwn_in: ['text'],
+    footer: `<${process.env.DRONE_BUILD_LINK}|build ${process.env.DRONE_BUILD_NUMBER} at ci.terra.songsterr.com>`
+  })
+
+  const modules = results.modules || {}
+  Object.keys(modules).map(function (moduleName) {
+    const module = modules[moduleName] || {}
+    const completed = module.completed || {}
+
+    Object.keys(completed).forEach(function (testName) {
+      const test = completed[testName]
+      const failed = test.failed + test.errors > 0
+      const assertions = test.assertions || []
+
+      if (failed < 1 || message.attachments.length >= 10) {
+        return
       }
 
-      assertions.forEach(function(a) {
-        if (a.failure) {
-          fields.push({
-            title: a.message,
-            value: a.failure
-          })
-          if(options.printFailureAssertionOnly){
-            attachments.push({
-              color: color,
-              title: testName,
-              footer: moduleName,
-              text: text,
-              fields: fields
-            });
-          }
-        }
+      const fields = assertions
+        .filter(a => a.failure)
+        .map(a => ({ title: a.message, value: a.failure, short: false }))
+
+      message.attachments.push({
+        color: 'danger',
+        fallback: testName,
+        author_name: testName,
+        fields: fields,
+        footer: moduleName
       })
+    })
+  })
 
-      if(!options.printFailureAssertionOnly){
-        attachments.push({
-          color: color,
-          title: testName,
-          footer: moduleName,
-          text: text,
-          fields: fields
-        });
-      }
-    });
-  });
-
-
-
-  wh.send(assign({
-    attachments: attachments.filter((a, i) => i<=5)
-  }, message), done);
+  request({ url: webhookURL, method: "POST", json: true, body: message }, (error, response, body) => done())
 }
 
-var reporter = require('./nightwatch.reporter.js')
-
-var options = {
-  slack_message: function(results, options) {
-    var branch = (process.env.CI) ? (' of '+ process.env.DRONE_REPO_NAME + ':' + process.env.DRONE_BRANCH) : ''
-
-    var passedMessage = (results.passed) ?  ', passed ' + results.passed : ''
-    var skippedMessage = (results.skipped) ?  ', skipped ' + results.skipped : ''
-    var failedMessage = (results.failed) ?  ', alternatively passed ' + results.failed : ''
-    var errorsMessage = (results.errors) ?  ', not working ' + results.errors : ''
-
-    return {
-      text: 'Test' + branch + ' completed, passed ' + results.passed + failedMessage + errorsMessage,
-    }
-  },
-  slack_send_only_on_failure: false,
-  slack_send_only_failed_tests: true
+module.exports = {
+  write
 }
-
-function reporter(options) {
-  return function reporter(results, done) {
-    write(results, options, done);
-  }
-}
-
-reporter.write = write;
-
-module.exports = reporter(options);

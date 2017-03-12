@@ -1,14 +1,9 @@
 FROM mhart/alpine-node:7.7.2
 
-RUN apk --no-cache add git python
-RUN npm install -g yarn
+RUN apk --no-cache add git python \
+ && npm install -g nightwatch request \
+ && mkdir -p /test/
 
-RUN mkdir -p /test/
-WORKDIR /test/
-COPY package.json yarn.lock  /test/
+COPY nightwatch.reporter.js /test/
 
-RUN yarn install && yarn global add nightwatch
-
-ADD script.sh /bin/
-RUN chmod +x /bin/script.sh
-ENTRYPOINT /bin/script.sh
+ENTRYPOINT nightwatch --reporter=/test/nightwatch.reporter.js --env ci
