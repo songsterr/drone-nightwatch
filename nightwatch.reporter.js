@@ -6,7 +6,7 @@ var IncomingWebhook = require('@slack/client').IncomingWebhook
   ;
 
 function write(results, options, done) {
-  var webhookURL = process.env.SECRET_SLACK_WEBHOOK_URL || options.slack_webhook_url || (options.globals || {}).slack_webhook_url
+  var webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL || options.slack_webhook_url || (options.globals || {}).slack_webhook_url
     , sendOnlyOnFailure = options.slack_send_only_on_failure || (options.globals || {}).slack_slack_send_only_on_failure || false
     , sendOnlyFailedTests = options.slack_send_only_failed_tests || (options.globals || {}).slack_send_only_failed_tests || false
     , modules = results.modules || {}
