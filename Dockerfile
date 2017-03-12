@@ -7,7 +7,7 @@ RUN mkdir -p /test/
 WORKDIR /test/
 COPY package.json yarn.lock  /test/
 
-RUN yarn install && yarn install -g nightwatch
+RUN yarn install && yarn global add nightwatch
 
 ADD script.sh /bin/
 RUN chmod +x /bin/script.sh
