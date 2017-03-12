@@ -1,9 +1,11 @@
 FROM mhart/alpine-node:7.7.2
 
 RUN apk --no-cache add git python \
- && npm install -g nightwatch request \
+ && npm install -g nightwatch \
  && mkdir -p /test/
 
-COPY nightwatch.reporter.js /test/
+ADD nightwatch.reporter.js /test/
+ADD script.sh /bin/
 
-ENTRYPOINT nightwatch --reporter=/test/nightwatch.reporter.js --env ci
+RUN chmod +x /bin/script.sh
+ENTRYPOINT /bin/script.sh
