@@ -58,7 +58,7 @@ function write(results, options, done) {
 
   const data = JSON.stringify(message)
   const options = {
-    hostname: "hooks.slack.com"
+    hostname: "hooks.slack.com",
     port: 443,
     path: webhookURL.replace("https://hooks.slack.com", "")
     method: 'POST',
