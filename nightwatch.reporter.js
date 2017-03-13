@@ -58,7 +58,7 @@ function write(results, options, done) {
   })
 
   const data = JSON.stringify(message)
-  const options = {
+  const opts = {
     hostname: "hooks.slack.com",
     port: 443,
     path: webhookURL.replace("https://hooks.slack.com", ""),
@@ -69,7 +69,7 @@ function write(results, options, done) {
     }
   }
 
-  const req = https.request(options, (res) => {
+  const req = https.request(opts, (res) => {
     if (res.statusCode !== 200) {
       console.warn(`Notification finished with ${res.statusCode}`)
     }
