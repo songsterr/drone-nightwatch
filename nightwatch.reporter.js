@@ -1,7 +1,5 @@
 // Thanks to https://raw.githubusercontent.com/ngs/nightwatch-slack-reporter/master/lib/reporter.js
 
-const request = require('request')
-
 function write(results, options, done) {
   const webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL
 
@@ -58,7 +56,23 @@ function write(results, options, done) {
     })
   })
 
-  request({ url: webhookURL, method: "POST", json: true, body: message }, (error, response, body) => done())
+  const data = JSON.stringify(message)
+  const options = {
+    hostname: "hooks.slack.com"
+    port: 443,
+    path: webhookURL.replace("https://hooks.slack.com", "")
+    method: 'POST',
+    headers: {
+      'Content-Length': data.length,
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const req = http.request(options)
+  req.write(data)
+  req.end(done)
+
+  // request({ url: webhookURL, method: "POST", json: true, body: message }, (error, response, body) => done())
 }
 
 module.exports = {
