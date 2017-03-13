@@ -1,4 +1,5 @@
 // Thanks to https://raw.githubusercontent.com/ngs/nightwatch-slack-reporter/master/lib/reporter.js
+const https = require('https')
 
 function write(results, options, done) {
   const webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL
@@ -68,9 +69,18 @@ function write(results, options, done) {
     }
   }
 
-  const req = http.request(options)
+  const req = https.request(options (res) => {
+    if (res.statusCode !== 200) {
+      console.warn(`Notification finished with ${res.statusCode}`)
+    }
+    done()
+  })
+  req.on('error', (error) => {
+    console.warn("Slack notification error", error)
+    done()
+  })
   req.write(data)
-  req.end(done)
+  req.end()
 
   // request({ url: webhookURL, method: "POST", json: true, body: message }, (error, response, body) => done())
 }
