@@ -1,0 +1,45 @@
+# DRONE 0.5 configuration
+# Read http://readme.drone.io/0.5/usage/repository/configuration/ if you need more information
+
+# Configure drone cli:
+# $ export DRONE_SERVER=https://ci.terra.songsterr.com
+# $ export DRONE_TOKEN=<GET YOUR TOKEN AT https://ci.terra.songsterr.com/account>
+# $ drone info
+
+# Read more about secrets http://readme.drone.io/0.5/secrets/
+# Also use `drone org secret add --skip-verify=true ...` to avoid .drone.yml.sig
+
+# List of current secrets see in 1P ".drone.yml secrets"
+
+# Check secrets
+# $ drone org secret ls songsterr --format="{{ . }}"
+pipeline:
+
+  notify_start:
+    image: hub.terra.songsterr.com/drone-slack
+    start: true
+
+  build:
+    image: docker:17.03
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    commands:
+      - docker info
+      - echo "Login to $REPO as ${SECRET_DOCKER_USER}"
+      - docker login -u ${SECRET_DOCKER_USER} -p ${SECRET_DOCKER_PASSWORD} $REPO
+      - docker build -f $DOCKERFILE -t $NAME:latest .
+      - docker push $NAME:latest
+    environment:
+      - DOCKERFILE=Dockerfile
+      - REPO=hub.terra.songsterr.com
+      - NAME=hub.terra.songsterr.com/${DRONE_REPO_NAME}
+      - BRANCH=${DRONE_BRANCH##feature/}
+      - COMMIT=${DRONE_COMMIT:0:8}
+
+  notify_finish:
+    image: hub.terra.songsterr.com/drone-slack
+    when:
+      status: [ success, failure ]
+
+branches: master
