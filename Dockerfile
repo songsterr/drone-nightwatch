@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:7.7.2
+FROM mhart/alpine-node:7.9.0
 
 RUN apk --no-cache add git python \
  && npm install -g nightwatch \
