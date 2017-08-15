@@ -1,4 +1,4 @@
-FROM node:7.10.1-alpine
+FROM node:8.3.0-alpine
 
 RUN apk --no-cache add git python \
  && npm install -g nightwatch \
