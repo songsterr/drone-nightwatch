@@ -1,7 +1,7 @@
-FROM node:8.3.0-alpine
+FROM node:8.6.0-alpine
 
 RUN apk --no-cache add git python \
- && npm install -g nightwatch \
+ && yarn global add nightwatch \
  && mkdir -p /test/
 
 ADD nightwatch.reporter.js /test/
