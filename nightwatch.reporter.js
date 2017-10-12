@@ -1,8 +1,14 @@
 // Thanks to https://raw.githubusercontent.com/ngs/nightwatch-slack-reporter/master/lib/reporter.js
 const https = require('https')
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 function write(results, options, done) {
   const webhookURL = process.env.SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL
+
+  const browser = capitalizeFirstLetter(options.globals.test_settings.desiredCapabilities.browserName)
 
   if (!webhookURL) {
     console.warn('[slack-reporter] environment SECRET_NIGHTWATCH_SLACK_WEBHOOK_URL is not configured');
@@ -19,7 +25,7 @@ function write(results, options, done) {
   const failedMessage = (results.failed) ?  `, failed ${results.failed}`: ''
   const errorsMessage = (results.errors) ?  `, not working ${results.errors}` : ''
 
-  const text = `Test of ${branch} completed${passedMessage}${skippedMessage}${failedMessage}${errorsMessage}`
+  const text = `Test with ${browser} of ${branch} completed${passedMessage}${skippedMessage}${failedMessage}${errorsMessage}`
   const color = ((results.failed + results.errors) > 0) ? 'danger' : ((results.skipped > 0) ? 'warning' : 'good')
 
   message.attachments.push({
