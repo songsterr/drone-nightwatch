@@ -87,8 +87,6 @@ function write(results, options, done) {
   })
   req.write(data)
   req.end()
-
-  // request({ url: webhookURL, method: "POST", json: true, body: message }, (error, response, body) => done())
 }
 
 module.exports = {
