@@ -78,6 +78,8 @@ function write(results, options, done) {
   const req = https.request(opts, (res) => {
     if (res.statusCode !== 200) {
       console.warn(`Notification finished with ${res.statusCode}`)
+      console.log(opts)
+      console.log(data)
     }
     done()
   })
