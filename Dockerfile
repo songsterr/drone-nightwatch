@@ -1,4 +1,4 @@
-FROM node:8.6.0-alpine
+FROM node:8.9.0-alpine
 
 RUN apk --no-cache add git python \
  && yarn global add nightwatch \
