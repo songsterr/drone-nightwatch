@@ -43,21 +43,15 @@ function write(results, options, done) {
     Object.keys(completed).forEach(function (testName) {
       const test = completed[testName]
       const failed = test.failed + test.errors > 0
-      const assertions = test.assertions || []
 
       if (failed < 1 || message.attachments.length >= 10) {
         return
       }
 
-      const fields = assertions
-        .filter(a => a.failure)
-        .map(a => ({ title: a.message, value: a.failure, short: false }))
-
       message.attachments.push({
         color: 'danger',
         fallback: testName,
-        author_name: testName,
-        fields: fields,
+        text: testName,
         footer: moduleName
       })
     })
