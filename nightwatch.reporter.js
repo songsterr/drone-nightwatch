@@ -30,9 +30,10 @@ function write(results, options, done) {
 
   message.attachments.push({
     color: color,
+    username: 'CI',
     text: text,
     mrkdwn_in: ['text'],
-    footer: `<${process.env.DRONE_BUILD_LINK}|build ${process.env.DRONE_BUILD_NUMBER} at ci.terra.songsterr.com>`
+    footer: `<${process.env.DRONE_BUILD_LINK}|build ${process.env.DRONE_BUILD_NUMBER}>`
   })
 
   const modules = results.modules || {}
