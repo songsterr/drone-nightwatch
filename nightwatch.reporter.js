@@ -33,7 +33,6 @@ function write(results, options, done) {
     color: color,
     text: text,
     mrkdwn_in: ['text'],
-    footer: `<${process.env.DRONE_BUILD_LINK}|build ${process.env.DRONE_BUILD_NUMBER}>`
   })
 
   const modules = results.modules || {}
